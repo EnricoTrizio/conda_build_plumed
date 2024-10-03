@@ -1,0 +1,99 @@
+{% set name = "plumed" %}
+{% set version = "2.9.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+source:
+  url: https://github.com/EnricoTrizio/plumed2/archive/refs/heads/pytorch_stable.zip
+  sha256: c64830497ae2e0e8363a4c044da98a4aa49942dc925e2b83bdc1b328081776ba
+build:
+  number: 1
+  skip: True  # [win]
+  skip: True  # [not linux]
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - llvm-openmp  # [osx]
+    - make
+    - pytorch
+  host:
+    - gsl
+    - libopenblas
+    - llvm-openmp  # [osx]
+    - zlib
+    - mpich 3.3.2 hc856adb_0
+    - pytorch
+
+outputs:
+ - name: plumed
+   requirements:
+     build:
+      - {{ compiler('c') }}
+      - {{ compiler('cxx') }}
+      - llvm-openmp  # [osx]
+      - make
+      - pytorch
+     host:
+      - gsl
+      - libopenblas
+      #- liblapack
+      - llvm-openmp  # [osx]
+      #- xdrfile
+      - zlib
+      - mpich 3.3.2 hc856adb_0
+      - pytorch
+     run:
+      - {{ compiler('c') }}
+      - {{ compiler('cxx') }}
+      - {{ pin_compatible('libopenblas') }}
+      - llvm-openmp  # [osx]
+      - {{ pin_compatible('mpich') }}
+      - pytorch
+      - gsl # 2.4 h14c3975_4
+
+   files: 
+    - bin/plumed*
+    - lib/python*/site-packages/torch/lib/libtorch_cpu.so  
+    - lib/python*/site-packages/torch/lib/libtorch.so  
+    - lib/python*/site-packages/torch/lib/libc10.so
+    - lib/*
+    - lib/plumed
+    - include/plumed  
+   test:
+    requires:
+      - mpich 3.3.2 hc856adb_0
+      - conda-build
+      - pytorch
+    commands:
+      - plumed info --root
+      - plumed info --long-version
+      - plumed-patch -h
+      - plumed config has libtorch
+      - plumed config module pytorch
+      - $PREFIX/lib/plumed/plumed-runtime -h
+      - test -f $PREFIX/lib/libplumed$SHLIB_EXT
+      - test -f $PREFIX/lib/libplumedWrapper.a
+      - test -f $PREFIX/lib/libplumedKernel$SHLIB_EXT
+      - conda inspect linkages -p $PREFIX $PKG_NAME
+      - conda inspect objects -p $PREFIX $PKG_NAME  # [osx]
+
+about:
+  home: http://www.plumed.org/
+  license: LGPL-3.0
+  license_family: GPL
+  license_file: COPYING.LESSER
+  summary: 'Free energy calculations in molecular systems'
+  description: |
+    PLUMED is an open source library for free energy calculations in
+    molecular systems which works together with some of the most
+    popular molecular dynamics engines.
+  doc_url: https://www.plumed.org/doc
+  dev_url: https://github.com/plumed/plumed2
+
+extra:
+  recipe-maintainers:
+    - EnricoTrizio
+	# thx to GiovanniBussi and LuigiBonati anyways

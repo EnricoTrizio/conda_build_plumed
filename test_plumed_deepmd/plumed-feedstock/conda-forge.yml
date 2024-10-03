@@ -1,0 +1,9 @@
+github:
+  user_or_org: deepmd-kit-recipes
+channels:
+  targets:
+    -
+      - deepmodeling
+provider:
+  linux_ppc64le: azure
+channel_priority: flexible

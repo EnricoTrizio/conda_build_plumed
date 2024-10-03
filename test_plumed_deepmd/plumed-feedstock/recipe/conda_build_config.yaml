@@ -1,0 +1,13 @@
+CONDA_BUILD_SYSROOT:
+  - /opt/MacOSX10.9.sdk   # [osx]
+channel_sources:
+- deepmodeling,defaults
+channel_targets:
+- deepmodeling main
+gsl:
+- 2.4
+c_compiler_version:
+- 7
+cxx_compiler_version:
+- 7
+
